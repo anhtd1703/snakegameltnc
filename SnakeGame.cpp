@@ -1,18 +1,23 @@
 #include "SnakeGame.h"
-#include <cstdlib>
-
+// Khởi tạo trạng thái ban đầu của rắn khi game bắt đầu hoặc khi chơi lại.
+int foodCount = 0;
+int speed = 300;
 void initSnake(Snake &snake) {
     snake.body.clear();
     snake.body.push_back({SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2});
     snake.dir = RIGHT;
     snake.health = 100;
+    foodCount=0;
+    speed=300;
 }
 
+// Đặt thức ăn vào một vị trí ngẫu nhiên trên màn hình.
 void placeFood(Food &food) {
     food.position.x = (rand() % (SCREEN_WIDTH / GRID_SIZE)) * GRID_SIZE;
     food.position.y = (rand() % (SCREEN_HEIGHT / GRID_SIZE)) * GRID_SIZE;
 }
 
+// Cập nhật vị trí của rắn sau mỗi lần di chuyển.
 void moveSnake(Snake &snake, bool &isAlive, GameMode mode) {
     SDL_Point newHead = snake.body[0];
     switch (snake.dir) {
@@ -21,6 +26,7 @@ void moveSnake(Snake &snake, bool &isAlive, GameMode mode) {
         case LEFT:  newHead.x -= GRID_SIZE; break;
         case RIGHT: newHead.x += GRID_SIZE; break;
     }
+    // Kiểm tra va chạm và thân => Over
 
     if (newHead.x < 0 || newHead.x >= SCREEN_WIDTH || newHead.y < 0 || newHead.y >= SCREEN_HEIGHT) {
         isAlive = false;
@@ -35,10 +41,12 @@ void moveSnake(Snake &snake, bool &isAlive, GameMode mode) {
     }
 
     snake.body.insert(snake.body.begin(), newHead);
+    // Nếu đang chơi chế độ Health Mode, giảm máu
     if (mode == HEALTH_MODE) snake.health -= 1;
 }
-
+// Check rắn có ăn không
 bool checkCollision(const Snake &snake, const Food &food) {
     return (snake.body[0].x == food.position.x && snake.body[0].y == food.position.y);
 }
+
 

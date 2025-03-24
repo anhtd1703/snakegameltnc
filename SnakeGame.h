@@ -1,34 +1,14 @@
-#ifndef SNAKE_GAME_H
-#define SNAKE_GAME_H
+#pragma once
+#include "Header.h"
 
-#include <SDL.h>
-#include <SDL_ttf.h>
-#include <SDL_image.h>
-#include <SDL_mixer.h>
-#include <vector>
-#include <string>
-
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
-const int GRID_SIZE = 40;
-
-enum Direction { UP, DOWN, LEFT, RIGHT };
-enum GameMode { CLASSIC, HEALTH_MODE };
-
-struct Snake {
-    std::vector<SDL_Point> body;
-    Direction dir;
-    int health;
-};
-
-struct Food {
-    SDL_Point position;
-};
-
+// Khởi tạo rắn về trạng thái ban đầu
 void initSnake(Snake &snake);
+
+// Đặt thức ăn vào một vị trí ngẫu nhiên trên màn hình
 void placeFood(Food &food);
+
+// Di chuyển rắn, kiểm tra va chạm, cập nhật trạng thái
 void moveSnake(Snake &snake, bool &isAlive, GameMode mode);
+
+// Kiểm tra xem rắn có ăn thức ăn không
 bool checkCollision(const Snake &snake, const Food &food);
-
-#endif
-
