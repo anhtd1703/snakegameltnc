@@ -32,6 +32,10 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="Render.cpp" />
+		<Unit filename="Render.h" />
+		<Unit filename="SnakeGame.cpp" />
+		<Unit filename="SnakeGame.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
