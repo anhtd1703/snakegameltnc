@@ -12,10 +12,8 @@ int main(int argc, char* argv[])  {
     SDL_Window *window = SDL_CreateWindow("Snake Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     // Render đồ hoạ game phù hợp
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    // Dùng Macos
-    //TTF_Font *font = TTF_OpenFont("/System/Library/Fonts/Supplemental/Arial.ttf", 24);
-    //Dùng Win
-  TTF_Font *font = TTF_OpenFont("C:\\Windows\\Fonts\\GIGI.TTF", 24);
+      //font chữ cho game
+      TTF_Font *font = TTF_OpenFont("C:\\Windows\\Fonts\\Arial.TTF", 39);
 
 
     SDL_Texture *headTexture = IMG_LoadTexture(renderer, "head2.png");
