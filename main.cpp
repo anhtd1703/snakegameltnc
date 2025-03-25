@@ -13,7 +13,7 @@ int main(int argc, char* argv[])  {
     // Render đồ hoạ game phù hợp
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
       //font chữ cho game
-      TTF_Font *font = TTF_OpenFont("C:\\Windows\\Fonts\\Arial.TTF", 39);
+      TTF_Font *font = TTF_OpenFont("C:\\Windows\\Fonts\\GIGI.ttf",39);
 
 
     SDL_Texture *headTexture = IMG_LoadTexture(renderer, "head2.png");

@@ -28,10 +28,19 @@ void moveSnake(Snake &snake, bool &isAlive, GameMode mode) {
     }
     // Kiểm tra va chạm và thân => Over
 
-    if (newHead.x < 0 || newHead.x >= SCREEN_WIDTH || newHead.y < 0 || newHead.y >= SCREEN_HEIGHT) {
-        isAlive = false;
-        return;
+    // Xử lý khi rắn đi qua biên, đưa nó sang phía đối diện
+    if (newHead.x < 0) {
+        newHead.x = SCREEN_WIDTH - GRID_SIZE; // Xuất hiện ở mép phải
+    } else if (newHead.x >= SCREEN_WIDTH) {
+        newHead.x = 0; // Xuất hiện ở mép trái
     }
+
+    if (newHead.y < 0) {
+        newHead.y = SCREEN_HEIGHT - GRID_SIZE; // Xuất hiện ở mép dưới
+    } else if (newHead.y >= SCREEN_HEIGHT) {
+        newHead.y = 0; // Xuất hiện ở mép trên
+    }
+
 
     for (size_t i = 1; i < snake.body.size(); i++) {
         if (newHead.x == snake.body[i].x && newHead.y == snake.body[i].y) {
