@@ -1,40 +1,53 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 #include "Header.h"
 #include "SnakeGame.h"
 #include "Render.h"
-int main(int argc, char* argv[])  {
+
+int main(int argc, char* argv[]) {
     srand(time(0));
+
+    // Khởi tạo SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) return 1;
     if (TTF_Init() == -1) return 1;
     if (IMG_Init(IMG_INIT_PNG) == 0) return 1;
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) return 1;
-    // Tạo màn hình game
+
+    // Tạo cửa sổ và renderer
     SDL_Window *window = SDL_CreateWindow("Snake Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    // Render đồ hoạ game phù hợp
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-      //font chữ cho game
-      TTF_Font *font = TTF_OpenFont("C:\\Windows\\Fonts\\GIGI.ttf",39);
+    TTF_Font *font = TTF_OpenFont("C:\\Windows\\Fonts\\GIGI.ttf", 39);
 
+    // Tải các texture cho game
+    std::map<std::string, SDL_Texture*> textures = {
+        {"head_up", IMG_LoadTexture(renderer, "head_up.png")},
+        {"head_down", IMG_LoadTexture(renderer, "head_down.png")},
+        {"head_left", IMG_LoadTexture(renderer, "head_left.png")},
+        {"head_right", IMG_LoadTexture(renderer, "head_right.png")},
+        {"body_horizontal", IMG_LoadTexture(renderer, "body_horizontal.png")},
+        {"body_vertical", IMG_LoadTexture(renderer, "body_vertical.png")},
+        {"body_topleft", IMG_LoadTexture(renderer, "body_topleft.png")},
+        {"body_topright", IMG_LoadTexture(renderer, "body_topright.png")},
+        {"body_bottomleft", IMG_LoadTexture(renderer, "body_bottomleft.png")},
+        {"body_bottomright", IMG_LoadTexture(renderer, "body_bottomright.png")},
+        {"food", IMG_LoadTexture(renderer, "food.png")},
+        {"background", IMG_LoadTexture(renderer, "SnakeBG2.png")}
+    };
 
-    SDL_Texture *headTexture = IMG_LoadTexture(renderer, "head2.png");
-    SDL_Texture *bodyTexture = IMG_LoadTexture(renderer, "body2.png");
-    SDL_Texture *foodTexture = IMG_LoadTexture(renderer, "food.png");
-    SDL_Texture *backgroundTexture = IMG_LoadTexture(renderer, "SnakeBG2.png");
+    // Tải âm thanh
+    Mix_Chunk *eatSound = Mix_LoadWAV("eat.wav");
+    Mix_Chunk *loseSound = Mix_LoadWAV("lose.wav");
 
-    Mix_Chunk *eatSound = Mix_LoadWAV("Untitled 1.wav");
-    Mix_Chunk *loseSound = Mix_LoadWAV("Untitled 2.wav");
-    // Vòng lặp , khởi tạo trò chơi
+    // Vòng lặp game chính
     while (true) {
-        GameMode mode = showMenu(renderer, font);
+        GameMode mode = showMenu(renderer, font); // Hiển thị menu chọn chế độ
         Snake snake;
         Food food;
-        initSnake(snake);
-        placeFood(food);
+        initSnake(snake); // Khởi tạo rắn
+        placeFood(food); // Đặt thức ăn
         bool isAlive = true;
-        // Vòng lặp chính
+
         while (isAlive) {
             SDL_Event event;
-            // Sử lý event khi user nhập lệnh bàn phím
             while (SDL_PollEvent(&event)) {
                 if (event.type == SDL_QUIT) return 0;
                 if (event.type == SDL_KEYDOWN) {
@@ -47,40 +60,53 @@ int main(int argc, char* argv[])  {
                 }
             }
 
-            moveSnake(snake, isAlive, mode);
-            // Kiểm tra va chạm thức ăn
-            if (checkCollision(snake, food)) {
+            moveSnake(snake, isAlive, mode); // Di chuyển rắn
+            if (checkCollision(snake, food)) { // Nếu rắn ăn thức ăn
                 snake.health += 10;
                 placeFood(food);
                 Mix_PlayChannel(-1, eatSound, 0);
                 foodCount++;
-                if(speed>10)
-                {
-                    speed-=10;
-                }
+                if(speed > 10) speed -= 10; // Tăng tốc độ game
             } else {
-                snake.body.pop_back();
+                snake.body.pop_back(); // Nếu không ăn thì bỏ phần đuôi đi
             }
-            // Hiển thị lên màn hình
-            SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
-            // vẽ nền
+
+            SDL_RenderCopy(renderer, textures["background"], NULL, NULL);
             SDL_Rect foodRect = {food.position.x, food.position.y, GRID_SIZE, GRID_SIZE};
-            SDL_RenderCopy(renderer, foodTexture, NULL, &foodRect);
-            // Vẽ thức ăn
-            for (size_t i = 0; i < snake.body.size(); i++) {
-                SDL_Rect rect = {snake.body[i].x, snake.body[i].y, GRID_SIZE, GRID_SIZE};
-                SDL_RenderCopy(renderer, (i == 0) ? headTexture : bodyTexture, NULL, &rect);
+            SDL_RenderCopy(renderer, textures["food"], NULL, &foodRect);
+
+            auto it = snake.body.begin();
+            SDL_Rect rect = {it->x, it->y, GRID_SIZE, GRID_SIZE};
+            SDL_RenderCopy(renderer, textures["head_" + directionToString(snake.dir)], NULL, &rect);
+
+            // Vẽ thân rắn dựa vào vị trí của các đoạn trước và sau
+            for (auto curr = ++snake.body.begin(); curr != snake.body.end(); ++curr) {
+                auto prev = std::prev(curr); // Đoạn thân trước
+                auto next = std::next(curr); // Đoạn thân sau
+                std::string textureKey = "body_horizontal";
+
+                // Xác định loại texture cần dùng dựa vào hướng di chuyển
+                if (prev->x == curr->x && next->x == curr->x) textureKey = "body_vertical";
+                else if (prev->y == curr->y && next->y == curr->y) textureKey = "body_horizontal";
+                else if ((prev->x < curr->x && next->y < curr->y) || (prev->y < curr->y && next->x < curr->x)) textureKey = "body_topleft";
+                else if ((prev->x > curr->x && next->y < curr->y) || (prev->y < curr->y && next->x > curr->x)) textureKey = "body_topright";
+                else if ((prev->x < curr->x && next->y > curr->y) || (prev->y > curr->y && next->x < curr->x)) textureKey = "body_bottomleft";
+                else if ((prev->x > curr->x && next->y > curr->y) || (prev->y > curr->y && next->x > curr->x)) textureKey = "body_bottomright";
+
+                SDL_Rect bodyRect = {curr->x, curr->y, GRID_SIZE, GRID_SIZE};
+                SDL_RenderCopy(renderer, textures[textureKey], NULL, &bodyRect);
             }
-            // Vẽ rắn
+
+            // Hiển thị điểm số và máu nếu ở chế độ Health Mode
             renderText(renderer, font, "Score: " + std::to_string(snake.body.size()), 10, 10);
             if (mode == HEALTH_MODE) renderText(renderer, font, "Health: " + std::to_string(snake.health), 10, 40);
-            // Kiểm tra rắn hết máu
             if (snake.health <= 0) isAlive = false;
-            // Cập nhật màn hình
+
             SDL_RenderPresent(renderer);
             SDL_Delay(speed);
         }
-        // Xử lý âm thanh khi rắn chết
+
+        // Khi rắn chết, phát âm thanh và hiện Game Over
         Mix_PlayChannel(-1, loseSound, 0);
         SDL_Delay(3000);
         if (!showGameOver(renderer, font)) break;
@@ -89,4 +115,3 @@ int main(int argc, char* argv[])  {
     SDL_Quit();
     return 0;
 }
-

@@ -1,5 +1,6 @@
 #pragma once
 #include "Header.h"
+#include<string>
 
 // Khởi tạo rắn về trạng thái ban đầu
 void initSnake(Snake &snake);
@@ -12,3 +13,5 @@ void moveSnake(Snake &snake, bool &isAlive, GameMode mode);
 
 // Kiểm tra xem rắn có ăn thức ăn không
 bool checkCollision(const Snake &snake, const Food &food);
+std::string directionToString(Direction dir);
+

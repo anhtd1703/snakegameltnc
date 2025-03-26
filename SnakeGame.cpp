@@ -57,5 +57,14 @@ void moveSnake(Snake &snake, bool &isAlive, GameMode mode) {
 bool checkCollision(const Snake &snake, const Food &food) {
     return (snake.body[0].x == food.position.x && snake.body[0].y == food.position.y);
 }
+std::string directionToString(Direction dir) {
+    switch (dir) {
+        case UP: return "up";
+        case DOWN: return "down";
+        case LEFT: return "left";
+        case RIGHT: return "right";
+        default: return "up"; // Mặc định nếu có lỗi
+    }
+}
 
 

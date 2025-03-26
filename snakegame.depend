@@ -1,24 +1,25 @@
 # depslib dependency file v1.0
-1742874598 source:c:\hoc c\snakegame\main.cpp
+1742958950 source:c:\hoc c\snakegame\main.cpp
 	<bits/stdc++.h>
 	"Header.h"
 	"SnakeGame.h"
 	"Render.h"
 
-1742805423 c:\hoc c\snakegame\snakegame.h
+1742958489 c:\hoc c\snakegame\snakegame.h
 	"Header.h"
+	<string>
 
 1742805439 c:\hoc c\snakegame\render.h
 	"Header.h"
 	<string>
 
-1742895716 source:c:\hoc c\snakegame\snakegame.cpp
+1742958472 source:c:\hoc c\snakegame\snakegame.cpp
 	"SnakeGame.h"
 
 1742835608 source:c:\hoc c\snakegame\render.cpp
 	"Render.h"
 
-1742805953 c:\hoc c\snakegame\header.h
+1742958257 c:\hoc c\snakegame\header.h
 	<SDL.h>
 	<SDL_ttf.h>
 	<SDL_image.h>

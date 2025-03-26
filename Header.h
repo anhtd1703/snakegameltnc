@@ -26,6 +26,10 @@ struct Snake {
 struct Food {
     SDL_Point position;  // Vị trí của thức ăn trên lưới
 };
+struct Pos {
+    int x, y;
+};
+
 // Chỉ khai báo, không khởi tạo biến toàn cục ở đây!
 extern int foodCount;
 extern int speed;
