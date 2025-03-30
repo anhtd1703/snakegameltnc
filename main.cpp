@@ -31,6 +31,10 @@ int main(int argc, char* argv[])
         {"body_topright", IMG_LoadTexture(renderer, "body_topright.png")},
         {"body_bottomleft", IMG_LoadTexture(renderer, "body_bottomleft.png")},
         {"body_bottomright", IMG_LoadTexture(renderer, "body_bottomright.png")},
+        {"tail_up", IMG_LoadTexture(renderer, "tail_up.png")},
+        {"tail_down", IMG_LoadTexture(renderer, "tail_down.png")},
+        {"tail_left", IMG_LoadTexture(renderer, "tail_left.png")},
+        {"tail_right", IMG_LoadTexture(renderer, "tail_right.png")},
         {"food", IMG_LoadTexture(renderer, "food.png")},
         {"background", IMG_LoadTexture(renderer, "SnakeBG2.png")}
     };
@@ -97,28 +101,95 @@ int main(int argc, char* argv[])
             SDL_Rect foodRect = {food.position.x, food.position.y, GRID_SIZE, GRID_SIZE};
             SDL_RenderCopy(renderer, textures["food"], NULL, &foodRect);
 
-            auto it = snake.body.begin();
-            SDL_Rect rect = {it->x, it->y, GRID_SIZE, GRID_SIZE};
-            SDL_RenderCopy(renderer, textures["head_" + directionToString(snake.dir)], NULL, &rect);
-
-            // Vẽ thân rắn dựa vào vị trí của các đoạn trước và sau
-            for (auto curr = ++snake.body.begin(); curr != snake.body.end(); ++curr)
+            // Vẽ đầu rắn
+            if (!snake.body.empty())
             {
-                auto prev = std::prev(curr); // Đoạn thân trước
-                auto next = std::next(curr); // Đoạn thân sau
-                std::string textureKey = "body_horizontal";
-
-                // Xác định loại texture cần dùng dựa vào hướng di chuyển
-                if (prev->x == curr->x && next->x == curr->x) textureKey = "body_vertical";
-                else if (prev->y == curr->y && next->y == curr->y) textureKey = "body_horizontal";
-                else if ((prev->x < curr->x && next->y < curr->y) || (prev->y < curr->y && next->x < curr->x)) textureKey = "body_topleft";
-                else if ((prev->x > curr->x && next->y < curr->y) || (prev->y < curr->y && next->x > curr->x)) textureKey = "body_topright";
-                else if ((prev->x < curr->x && next->y > curr->y) || (prev->y > curr->y && next->x < curr->x)) textureKey = "body_bottomleft";
-                else if ((prev->x > curr->x && next->y > curr->y) || (prev->y > curr->y && next->x > curr->x)) textureKey = "body_bottomright";
-
-                SDL_Rect bodyRect = {curr->x, curr->y, GRID_SIZE, GRID_SIZE};
-                SDL_RenderCopy(renderer, textures[textureKey], NULL, &bodyRect);
+                auto head = snake.body.begin();
+                SDL_Rect headRect = { head->x, head->y, GRID_SIZE, GRID_SIZE };
+                SDL_RenderCopy(renderer, textures["head_" + directionToString(snake.dir)], NULL, &headRect);
             }
+
+// Vẽ thân rắn (các đoạn giữa)
+            if (snake.body.size() >= 3)
+            {
+                // Duyệt từ phần tử thứ hai đến phần tử áp chót
+                for (auto curr = ++snake.body.begin(); curr != std::prev(snake.body.end()); ++curr)
+                {
+                    auto prev = std::prev(curr); // Đoạn trước
+                    auto next = std::next(curr); // Đoạn sau
+                    std::string textureKey = "body_horizontal"; // Mặc định
+
+                    // Xác định texture dựa vào hướng của các đoạn trước và sau
+                    if (prev->x == curr->x && next->x == curr->x)
+                    {
+                        textureKey = "body_vertical";
+                    }
+                    else if (prev->y == curr->y && next->y == curr->y)
+                    {
+                        textureKey = "body_horizontal";
+                    }
+                    else if ((prev->x < curr->x && next->y < curr->y) || (prev->y < curr->y && next->x < curr->x))
+                    {
+                        textureKey = "body_topleft";
+                    }
+                    else if ((prev->x > curr->x && next->y < curr->y) || (prev->y < curr->y && next->x > curr->x))
+                    {
+                        textureKey = "body_topright";
+                    }
+                    else if ((prev->x < curr->x && next->y > curr->y) || (prev->y > curr->y && next->x < curr->x))
+                    {
+                        textureKey = "body_bottomleft";
+                    }
+                    else if ((prev->x > curr->x && next->y > curr->y) || (prev->y > curr->y && next->x > curr->x))
+                    {
+                        textureKey = "body_bottomright";
+                    }
+
+                    SDL_Rect bodyRect = { curr->x, curr->y, GRID_SIZE, GRID_SIZE };
+                    SDL_RenderCopy(renderer, textures[textureKey], NULL, &bodyRect);
+                }
+            }
+            else if (snake.body.size() == 2)
+            {
+                // Nếu rắn chỉ có 2 đoạn (đầu và đuôi), không có đoạn thân giữa để vẽ
+                // Có thể bỏ qua hoặc xử lý riêng nếu cần
+            }
+
+// Vẽ đuôi rắn (tail) nếu rắn có ít nhất 2 đoạn
+            if (snake.body.size() >= 2)
+            {
+                auto tail = std::prev(snake.body.end());
+                auto preTail = std::prev(tail);
+                std::string tailTextureKey;
+
+                // So sánh tọa độ của preTail và tail để xác định hướng đuôi
+                if (preTail->x == tail->x)
+                {
+                    if (preTail->y < tail->y)
+                    {
+                        tailTextureKey = "tail_down";
+                    }
+                    else
+                    {
+                        tailTextureKey = "tail_up";
+                    }
+                }
+                else if (preTail->y == tail->y)
+                {
+                    if (preTail->x < tail->x)
+                    {
+                        tailTextureKey = "tail_right";
+                    }
+                    else
+                    {
+                        tailTextureKey = "tail_left";
+                    }
+                }
+
+                SDL_Rect tailRect = { tail->x, tail->y, GRID_SIZE, GRID_SIZE };
+                SDL_RenderCopy(renderer, textures[tailTextureKey], NULL, &tailRect);
+            }
+
             Uint32 currentTime = SDL_GetTicks();
 
             // Hiển thị điểm số và máu nếu ở chế độ Health Mode

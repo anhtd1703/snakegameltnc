@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1743310498 source:c:\hoc c\snakegame\main.cpp
+1743311570 source:c:\hoc c\snakegame\main.cpp
 	<bits/stdc++.h>
 	"Header.h"
 	"SnakeGame.h"
