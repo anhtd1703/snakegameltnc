@@ -41,6 +41,7 @@ GameMode showMenu(SDL_Renderer *renderer, TTF_Font *font) {
         // Hiển thị chữ bên trong khung
         renderText(renderer, font, "1. Classic Mode", 200, 200);
         renderText(renderer, font, "2. Survival Mode", 200, 250);
+         renderText(renderer, font, "3. Time limit Mode", 200, 300);
 
         // Cập nhật màn hình với các đối tượng vừa render
         SDL_RenderPresent(renderer);
@@ -60,6 +61,10 @@ GameMode showMenu(SDL_Renderer *renderer, TTF_Font *font) {
                     SDL_DestroyTexture(bgTexture);
                     return HEALTH_MODE;
                 }
+                 if (event.key.keysym.sym == SDLK_3) {
+                    SDL_DestroyTexture(bgTexture);
+                    return TIME_MODE;
+                }
             }
         }
     }
@@ -67,6 +72,7 @@ GameMode showMenu(SDL_Renderer *renderer, TTF_Font *font) {
 // Hiển thị màn hình Game Over và chờ người chơi nhập lệnh để chơi lại hoặc thoát.
 bool showGameOver(SDL_Renderer *renderer, TTF_Font *font) {
     // Tải ảnh nền Game Over từ file "GameOverBackground.png"
+
     SDL_Surface* bgSurface = IMG_Load("SnakeBG2.png");
     if (!bgSurface) {
         // Nếu không tải được ảnh, in thông báo lỗi và thoát chương trình
@@ -85,6 +91,7 @@ bool showGameOver(SDL_Renderer *renderer, TTF_Font *font) {
         // Render chữ "Game Over!" và lời nhắc cho người chơi
         renderText(renderer, font, "Game Over!", 250, 150);
         renderText(renderer, font, "Press R to Retry or Q to Quit", 100, 200);
+        renderText(renderer, font, "Your score is: " + std::to_string(yourScore), 250, 250);
 
         // Cập nhật màn hình với các đối tượng vừa render
         SDL_RenderPresent(renderer);

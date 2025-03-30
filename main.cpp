@@ -3,7 +3,8 @@
 #include "SnakeGame.h"
 #include "Render.h"
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     srand(time(0));
 
     // Khởi tạo SDL
@@ -18,7 +19,8 @@ int main(int argc, char* argv[]) {
     TTF_Font *font = TTF_OpenFont("C:\\Windows\\Fonts\\GIGI.ttf", 39);
 
     // Tải các texture cho game
-    std::map<std::string, SDL_Texture*> textures = {
+    std::map<std::string, SDL_Texture*> textures =
+    {
         {"head_up", IMG_LoadTexture(renderer, "head_up.png")},
         {"head_down", IMG_LoadTexture(renderer, "head_down.png")},
         {"head_left", IMG_LoadTexture(renderer, "head_left.png")},
@@ -37,37 +39,57 @@ int main(int argc, char* argv[]) {
     Mix_Chunk *eatSound = Mix_LoadWAV("eat.wav");
     Mix_Chunk *loseSound = Mix_LoadWAV("lose.wav");
 
+
     // Vòng lặp game chính
-    while (true) {
+    while (true)
+    {
         GameMode mode = showMenu(renderer, font); // Hiển thị menu chọn chế độ
         Snake snake;
         Food food;
         initSnake(snake); // Khởi tạo rắn
         placeFood(food); // Đặt thức ăn
         bool isAlive = true;
+        Uint32 startTime = SDL_GetTicks();
 
-        while (isAlive) {
+
+        while (isAlive)
+        {
+
             SDL_Event event;
-            while (SDL_PollEvent(&event)) {
+            while (SDL_PollEvent(&event))
+            {
                 if (event.type == SDL_QUIT) return 0;
-                if (event.type == SDL_KEYDOWN) {
-                    switch (event.key.keysym.sym) {
-                        case SDLK_UP:    if (snake.dir != DOWN) snake.dir = UP; break;
-                        case SDLK_DOWN:  if (snake.dir != UP) snake.dir = DOWN; break;
-                        case SDLK_LEFT:  if (snake.dir != RIGHT) snake.dir = LEFT; break;
-                        case SDLK_RIGHT: if (snake.dir != LEFT) snake.dir = RIGHT; break;
+                if (event.type == SDL_KEYDOWN)
+                {
+                    switch (event.key.keysym.sym)
+                    {
+                    case SDLK_UP:
+                        if (snake.dir != DOWN) snake.dir = UP;
+                        break;
+                    case SDLK_DOWN:
+                        if (snake.dir != UP) snake.dir = DOWN;
+                        break;
+                    case SDLK_LEFT:
+                        if (snake.dir != RIGHT) snake.dir = LEFT;
+                        break;
+                    case SDLK_RIGHT:
+                        if (snake.dir != LEFT) snake.dir = RIGHT;
+                        break;
                     }
                 }
             }
 
             moveSnake(snake, isAlive, mode); // Di chuyển rắn
-            if (checkCollision(snake, food)) { // Nếu rắn ăn thức ăn
+            if (checkCollision(snake, food))   // Nếu rắn ăn thức ăn
+            {
                 snake.health += 10;
                 placeFood(food);
                 Mix_PlayChannel(-1, eatSound, 0);
                 foodCount++;
                 if(speed > 10) speed -= 10; // Tăng tốc độ game
-            } else {
+            }
+            else
+            {
                 snake.body.pop_back(); // Nếu không ăn thì bỏ phần đuôi đi
             }
 
@@ -80,7 +102,8 @@ int main(int argc, char* argv[]) {
             SDL_RenderCopy(renderer, textures["head_" + directionToString(snake.dir)], NULL, &rect);
 
             // Vẽ thân rắn dựa vào vị trí của các đoạn trước và sau
-            for (auto curr = ++snake.body.begin(); curr != snake.body.end(); ++curr) {
+            for (auto curr = ++snake.body.begin(); curr != snake.body.end(); ++curr)
+            {
                 auto prev = std::prev(curr); // Đoạn thân trước
                 auto next = std::next(curr); // Đoạn thân sau
                 std::string textureKey = "body_horizontal";
@@ -96,20 +119,35 @@ int main(int argc, char* argv[]) {
                 SDL_Rect bodyRect = {curr->x, curr->y, GRID_SIZE, GRID_SIZE};
                 SDL_RenderCopy(renderer, textures[textureKey], NULL, &bodyRect);
             }
+            Uint32 currentTime = SDL_GetTicks();
 
             // Hiển thị điểm số và máu nếu ở chế độ Health Mode
             renderText(renderer, font, "Score: " + std::to_string(snake.body.size()), 10, 10);
             if (mode == HEALTH_MODE) renderText(renderer, font, "Health: " + std::to_string(snake.health), 10, 40);
+            if(mode== TIME_MODE)
+            {
+                int timeLeft = (timeLimit - (currentTime - startTime)) / 1000;
+                renderText(renderer, font, "Time Left: " + std::to_string(timeLeft), 10, 70);
+                if(timeLeft==0) isAlive=false;
+            }
             if (snake.health <= 0) isAlive = false;
 
             SDL_RenderPresent(renderer);
-            SDL_Delay(speed);
+            if(mode!=TIME_MODE)
+            {
+                SDL_Delay(speed);
+            }
+            else SDL_Delay(100);
         }
+        yourScore=snake.body.size();
+
+
 
         // Khi rắn chết, phát âm thanh và hiện Game Over
         Mix_PlayChannel(-1, loseSound, 0);
         SDL_Delay(3000);
         if (!showGameOver(renderer, font)) break;
+
     }
 
     SDL_Quit();
