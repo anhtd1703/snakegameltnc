@@ -149,11 +149,7 @@ int main(int argc, char* argv[])
                     SDL_RenderCopy(renderer, textures[textureKey], NULL, &bodyRect);
                 }
             }
-            else if (snake.body.size() == 2)
-            {
-                // Nếu rắn chỉ có 2 đoạn (đầu và đuôi), không có đoạn thân giữa để vẽ
-                // Có thể bỏ qua hoặc xử lý riêng nếu cần
-            }
+        
 
 // Vẽ đuôi rắn (tail) nếu rắn có ít nhất 2 đoạn
             if (snake.body.size() >= 2)
